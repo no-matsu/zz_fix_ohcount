@@ -315,7 +315,7 @@ static int hash(char *line) {
 void prepare(int i, const char *buf) {
   struct line *p;
   int j;
-  char bufcpy[strlen(buf)];
+  char bufcpy[strlen(buf)+1];
   char *l;
 
   p = malloc(3*sizeof(struct line));
