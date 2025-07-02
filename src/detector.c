@@ -166,7 +166,7 @@ const char *ohcount_detect_language(SourceFile *sourcefile) {
       }
       pe = p;
       while (!isspace(*pe) && *pe != ';' && pe != strstr(pe, "-*-")) pe++;
-      length = (pe - p <= sizeof(buf)) ? pe - p : sizeof(buf);
+      length = (pe - p < sizeof(buf)) ? pe - p : sizeof(buf)-1;
       strncpy(buf, p, length);
       buf[length] = '\0';
 
@@ -236,7 +236,7 @@ const char *disambiguate_aspx(SourceFile *sourcefile) {
     if (p && pe) {
       p += 3;
       const int length = pe - p;
-      char buf[length];
+      char buf[length+1];
       strncpy(buf, p, length);
       buf[length] = '\0';
       char *eol = buf + strlen(buf);
@@ -572,7 +572,7 @@ const char *disambiguate_h(SourceFile *sourcefile) {
   while (pe < eof) {
     // Get a line at a time.
     while (pe < eof && *pe != '\r' && *pe != '\n') pe++;
-    length = (pe - p <= sizeof(line)) ? pe - p : sizeof(line);
+    length = (pe - p < sizeof(line)) ? pe - p : sizeof(line)-1;
     strncpy(line, p, length);
     line[length] = '\0';
     char *eol = line + strlen(line);
@@ -650,7 +650,7 @@ const char *disambiguate_in(SourceFile *sourcefile) {
   if (strstr(p, ".") <= pe) {
     // Only if the filename has an extension prior to the .in
     length = pe - p;
-    char buf[length];
+    char buf[length+1];
     strncpy(buf, p, length);
     buf[length] = '\0';
     p = ohcount_sourcefile_get_contents(sourcefile);
