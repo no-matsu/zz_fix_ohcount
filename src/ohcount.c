@@ -13,7 +13,7 @@ void annotate_callback(const char *language, const char *entity, int start,
                        int end, void *userdata) {
   SourceFile *sf = (SourceFile *)userdata;
   int length = end - start;
-  char buf[length];
+  char buf[length+1];
   strncpy(buf, (const char*)sf->contents + start, length); // field exists
   buf[length] = '\0';
   printf("%s\t%s\t%s", language, entity, buf);
