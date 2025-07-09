@@ -44,7 +44,7 @@ const char *magic_parse(char *line) {
       p += 4;
       pe = p;
       while (isalnum(*pe)) pe++;
-      length = pe - p;
+      length = (pe - p < sizeof(buf)) ? (pe - p) : (sizeof(buf) -1);
       strncpy(buf, p, length);
       buf[length] = '\0';
       struct LanguageMap *rl = ohcount_hash_language_from_name(buf, length);
@@ -61,7 +61,7 @@ const char *magic_parse(char *line) {
       while (p != line && isalnum(*(p - 1))) p--;
       if (p != line && *(p - 1) == '-') p--;
     } while (*p == '-'); // Skip over any switches.
-    length = pe - p;
+    length = (pe - p < sizeof(buf)) ? (pe - p) : (sizeof(buf) -1);
     strncpy(buf, p, length);
     buf[length] = '\0';
     struct LanguageMap *rl = ohcount_hash_language_from_name(buf, length);
@@ -146,7 +146,7 @@ const char *ohcount_detect_language(SourceFile *sourcefile) {
     while (pe < eof) {
       // Get the contents of the first line.
       while (pe < eof && *pe != '\r' && *pe != '\n') pe++;
-      length = (pe - p <= sizeof(line)) ? pe - p : sizeof(line);
+      length = (pe - p < sizeof(line)) ? (pe - p) : (sizeof(line) -1);
       strncpy(line, p, length);
       line[length] = '\0';
       if (*line == '#' && *(line + 1) == '!') {
@@ -166,7 +166,7 @@ const char *ohcount_detect_language(SourceFile *sourcefile) {
       }
       pe = p;
       while (!isspace(*pe) && *pe != ';' && pe != strstr(pe, "-*-")) pe++;
-      length = (pe - p < sizeof(buf)) ? pe - p : sizeof(buf)-1;
+      length = (pe - p < sizeof(buf)) ? (pe - p) : (sizeof(buf)-1);
       strncpy(buf, p, length);
       buf[length] = '\0';
 
@@ -323,7 +323,7 @@ const char *disambiguate_basic(SourceFile *sourcefile) {
   while (pe < eof) {
     // Get a line at a time.
     while (pe < eof && *pe != '\r' && *pe != '\n') pe++;
-    length = (pe - p <= sizeof(line)) ? pe - p : sizeof(line);
+    length = (pe - p < sizeof(line)) ? (pe - p) : (sizeof(line) -1);
     strncpy(line, p, length);
     line[length] = '\0';
     char *line_end = pe;
@@ -550,7 +550,7 @@ const char *disambiguate_h(SourceFile *sourcefile) {
   // If the directory contains a matching *.m file, likely Objective C.
   length = strlen(sourcefile->filename);
   if (strcmp(sourcefile->ext, "h") == 0) {
-    char path[length];
+    char path[length +1];
     strncpy(path, sourcefile->filename, length);
     path[length] = '\0';
     *(path + length - 1) = 'm';
@@ -572,7 +572,7 @@ const char *disambiguate_h(SourceFile *sourcefile) {
   while (pe < eof) {
     // Get a line at a time.
     while (pe < eof && *pe != '\r' && *pe != '\n') pe++;
-    length = (pe - p < sizeof(line)) ? pe - p : sizeof(line)-1;
+    length = (pe - p < sizeof(line)) ? (pe - p) : (sizeof(line)-1);
     strncpy(line, p, length);
     line[length] = '\0';
     char *eol = line + strlen(line);
@@ -600,7 +600,7 @@ const char *disambiguate_h(SourceFile *sourcefile) {
           // Is the extension for the header file a C++ file?
           p = pe;
           while (p > line && *(p - 1) != '.') p--;
-          length = pe - p;
+          length = (pe - p < sizeof(buf)) ? (pe - p) : (sizeof(buf) -1);
           strncpy(buf, p, length);
           buf[length] = '\0';
           struct ExtensionMap *re = ohcount_hash_language_from_ext(buf, length);
@@ -617,7 +617,7 @@ const char *disambiguate_h(SourceFile *sourcefile) {
         pe = p;
         while (islower(*pe)) pe++;
         if (!isalnum(*pe) && *pe != '_') {
-          length = pe - p;
+          length = (pe - p < sizeof(buf)) ? (pe - p) : (sizeof(buf) -1);
           strncpy(buf, p, length);
           buf[length] = '\0';
           if (strcmp(buf, "class") == 0 ||
@@ -741,7 +741,7 @@ const char *disambiguate_m(SourceFile *sourcefile) {
   while (pe < eof) {
     // Get a line at a time.
     while (pe < eof && *pe != '\r' && *pe != '\n') pe++;
-    length = (pe - p <= sizeof(line)) ? pe - p : sizeof(line);
+    length = (pe - p < sizeof(line)) ? (pe - p) : (sizeof(line) -1);
     strncpy(line, p, length);
     line[length] = '\0';
     char *eol = line + strlen(line);
@@ -794,7 +794,7 @@ const char *disambiguate_m(SourceFile *sourcefile) {
         pe = p;
         while (islower(*pe) || *pe == '_') pe++;
         if (!isalnum(*pe)) {
-          length = pe - p;
+          length = (pe - p < sizeof(buf)) ? (pe - p) : (sizeof(buf) -1);
           strncpy(buf, p, length);
           buf[length] = '\0';
           if (strcmp(buf, "end_try_catch") == 0 ||
@@ -1029,7 +1029,7 @@ const char *disambiguate_st(SourceFile *sourcefile) {
   while (pe < eof) {
     // Get a line at a time.
     while (pe < eof && *pe != '\r' && *pe != '\n') pe++;
-    length = (pe - p <= sizeof(line)) ? pe - p : sizeof(line);
+    length = (pe - p < sizeof(line)) ? (pe - p) : (sizeof(line) -1);
     strncpy(line, p, length);
     line[length] = '\0';
     char *eol = line + strlen(line);
